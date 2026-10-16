@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HypeAuto.by — авто из Китая и США «под ключ» с доставкой в Беларусь</title>
+<meta name="description" content="Авто из Китая и США «под ключ»: подбор на аукционах Copart/IAAI/Manheim, проверка, доставка и таможенная очистка в Беларуси. ООО «ХайпКарсБай».">
+<meta property="og:title" content="HypeAuto.by — авто из Китая и США под ключ">
+<meta property="og:description" content="Подбор, проверка, доставка, растаможка и учёт. Прокрутите страницу — весь путь вашей машины в кино.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#04060d; --panel:rgba(8,12,24,.86); --line:rgba(150,180,255,.14);
+  --txt:#e8edf8; --dim:#8fa0bd; --amber:#a4ff02; --ice:#7fd6ff;
+  --disp:'Unbounded',sans-serif; --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ink);color:var(--txt);font-family:var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--amber);color:var(--ink)}
+a{color:inherit;text-decoration:none}
+
+/* ===== киноплёнка ===== */
+#film{position:fixed;inset:0;z-index:0}
+#film video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .8s ease}
+#film video.hide{opacity:0}
+#shade{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(4,6,13,.45),rgba(4,6,13,0) 30%,rgba(4,6,13,0) 62%,rgba(4,6,13,.55)),
+             radial-gradient(ellipse at center,transparent 55%,rgba(4,6,13,.5) 100%)}
+
+/* ===== лоадер ===== */
+#loader{position:fixed;inset:0;z-index:200;background:var(--ink);display:grid;place-items:center;transition:opacity .9s ease,visibility .9s}
+#loader.off{opacity:0;visibility:hidden;pointer-events:none}
+.ld-in{text-align:center}
+.ld-in b{font-family:var(--disp);font-weight:900;font-size:clamp(28px,6vw,54px);letter-spacing:.08em}
+.ld-in b i{font-style:normal;color:var(--amber)}
+.ld-in small{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.5em;color:var(--dim);margin-top:14px;text-transform:uppercase}
+.ld-bar{width:180px;height:2px;background:rgba(255,255,255,.1);margin:22px auto 0;overflow:hidden;position:relative}
+.ld-bar i{position:absolute;inset:0;background:var(--amber);transform-origin:left;transition:transform .3s}
+
+/* ===== кинематографические полосы + зерно ===== */
+.bar{position:fixed;left:0;right:0;height:5.5vh;background:var(--ink);z-index:40;pointer-events:none;transition:transform 1s ease}
+.bar.t{top:0}.bar.b{bottom:0}
+body.cine-off .bar.t{transform:translateY(-101%)}
+body.cine-off .bar.b{transform:translateY(101%)}
+#grain{position:fixed;inset:0;z-index:41;pointer-events:none;opacity:.08;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+/* таймкод кадра */
+#tc{position:fixed;top:2vh;right:26px;z-index:42;font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;text-shadow:0 2px 14px #000;pointer-events:none;transition:opacity .6s}
+#tc.off{opacity:0}
+
+/* ===== герой ===== */
+#hero{position:fixed;inset:0;z-index:30;display:grid;place-items:center;pointer-events:none;transition:opacity .8s ease,transform .8s ease;text-align:center;padding:0 20px}
+#hero.off{opacity:0;transform:translateY(-6vh)}
+.hero-in .tag{font-family:var(--mono);font-size:11px;letter-spacing:.55em;color:var(--ice);text-transform:uppercase;text-shadow:0 2px 30px #000}
+.hero-in h1{font-family:var(--disp);font-weight:900;font-size:clamp(38px,9vw,110px);letter-spacing:.04em;line-height:1;margin:18px 0 10px;text-shadow:0 4px 60px rgba(0,0,0,.85)}
+.hero-in h1 i{font-style:normal;color:var(--amber)}
+.hero-in p{color:#c9d4e8;font-size:clamp(14px,1.6vw,18px);max-width:600px;margin:0 auto;text-shadow:0 2px 20px #000}
+#hint{position:fixed;bottom:8.5vh;left:0;right:0;z-index:30;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.4em;color:var(--dim);text-transform:uppercase;pointer-events:none;transition:opacity .6s}
+#hint.off{opacity:0}
+#hint b{display:block;font-size:15px;color:var(--amber);margin-bottom:8px;animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+#tourBtn{position:fixed;right:22px;bottom:8vh;z-index:45;font-family:var(--mono);font-size:11px;letter-spacing:.25em;color:var(--txt);background:rgba(8,12,24,.6);border:1px solid var(--line);padding:12px 18px;border-radius:40px;cursor:pointer;backdrop-filter:blur(8px);transition:.3s;text-transform:uppercase}
+#tourBtn:hover{border-color:var(--amber);color:var(--amber)}
+#tourBtn.touring{border-color:var(--amber);color:var(--amber)}
+#tourBtn.hide{opacity:0;pointer-events:none}
+
+/* ===== кино-титры ===== */
+.cap{position:fixed;top:0;left:0;right:0;height:100vh;z-index:30;display:flex;align-items:flex-end;pointer-events:none;opacity:0;transform:translateY(4vh);transition:opacity .7s ease,transform .7s ease;padding:0 6vw 11vh}
+.cap.on{opacity:1;transform:translateY(0)}
+.cap-in{max-width:520px;text-align:left}
+.cap .tcd{font-family:var(--mono);font-size:10.5px;letter-spacing:.45em;color:var(--ice);text-transform:uppercase;margin-bottom:14px;text-shadow:0 2px 20px #000}
+.cap h2{font-family:var(--disp);font-weight:700;font-size:clamp(24px,4.6vw,52px);line-height:1.12;letter-spacing:.02em;text-shadow:0 3px 40px rgba(0,0,0,.9)}
+.cap h2 i{font-style:normal;color:var(--amber)}
+.cap p{margin-top:14px;color:#c9d4e8;font-size:clamp(14px,1.5vw,17px);line-height:1.65;text-shadow:0 2px 16px #000}
+
+/* ===== секции ===== */
+#movie{height:900vh;position:relative;z-index:1}
+section.blk{position:relative;z-index:2;background:linear-gradient(180deg,rgba(4,6,13,0) 0%,rgba(4,6,13,.9) 120px,rgba(4,6,13,.94) 100%);padding:110px 24px 90px}
+.wrap{max-width:1080px;margin:0 auto}
+.sec-head{margin-bottom:54px}
+.sec-head .tag{font-family:var(--mono);font-size:11px;letter-spacing:.5em;color:var(--ice);text-transform:uppercase}
+.sec-head h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4.4vw,46px);margin:16px 0 14px;line-height:1.15}
+.sec-head p{color:var(--dim);max-width:640px;line-height:1.7}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px 24px;backdrop-filter:blur(6px);transition:.3s}
+.card:hover{transform:translateY(-5px);border-color:rgba(255,176,84,.45)}
+.card h3{font-family:var(--disp);font-weight:500;font-size:19px;margin-bottom:10px}
+.card .flag{font-size:26px;margin-bottom:12px;display:block}
+.card p{color:var(--dim);font-size:14px;line-height:1.65}
+.card .price{margin-top:16px;font-family:var(--mono);font-weight:600;color:var(--amber);font-size:17px}
+.card .price small{display:block;color:var(--dim);font-weight:400;font-size:10.5px;letter-spacing:.15em;margin-top:4px;text-transform:uppercase}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:880px){.calc-grid{grid-template-columns:1fr}}
+.calc-form{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px}
+.calc-form label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin:20px 0 8px}
+.calc-form label:first-child{margin-top:0}
+.calc-form select,.calc-form input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:13px 14px;font:500 15px var(--body);outline:none;transition:.2s}
+.calc-form select:focus,.calc-form input:focus{border-color:var(--amber)}
+.calc-form select option{background:#0a0f1e}
+.calc-res{background:linear-gradient(160deg,rgba(164,255,2,.07),rgba(8,12,24,.9));border:1px solid rgba(164,255,2,.3);border-radius:18px;padding:30px;display:flex;flex-direction:column}
+.r-label{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
+.r-total{font-family:var(--disp);font-weight:900;font-size:clamp(30px,4vw,44px);color:var(--amber);margin:12px 0 4px}
+.r-note{color:var(--dim);font-size:12.5px;margin-bottom:22px}
+.r-rows{display:flex;flex-direction:column;gap:0;margin-bottom:26px;flex:1}
+.r-rows .row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px dashed rgba(150,180,255,.14);font-size:13.5px}
+.r-rows .row span{color:var(--dim)}
+.r-rows .row b{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.calc-cta{display:block;width:100%;background:var(--amber);color:var(--ink);border:none;border-radius:12px;padding:16px;font:700 14px var(--body);letter-spacing:.05em;cursor:pointer;transition:.25s;text-transform:uppercase}
+.calc-cta:hover{filter:brightness(1.12)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;transition:.3s}
+.step:hover{border-color:rgba(127,214,255,.4)}
+.step .num{font-family:var(--mono);font-weight:600;color:var(--ice);font-size:13px;letter-spacing:.3em;margin-bottom:12px}
+.step h3{font-family:var(--disp);font-weight:500;font-size:17px;margin-bottom:9px}
+.step p{color:var(--dim);font-size:13.5px;line-height:1.65}
+.faq details{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin-bottom:12px}
+.faq summary{cursor:pointer;font-weight:600;font-size:15.5px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq summary::after{content:'+';font-family:var(--mono);color:var(--amber);font-size:20px;transition:.25s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{color:var(--dim);font-size:14px;line-height:1.7;margin-top:12px}
+#contact .big-cta{text-align:center}
+#contact h2{font-family:var(--disp);font-weight:900;font-size:clamp(28px,5vw,56px);line-height:1.15}
+#contact h2 i{font-style:normal;color:var(--amber)}
+#contact .sub{color:var(--dim);max-width:520px;margin:18px auto 40px;line-height:1.7}
+.c-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;max-width:860px;margin:0 auto}
+.c-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;text-align:center;transition:.3s}
+.c-card:hover{transform:translateY(-4px);border-color:rgba(164,255,2,.5)}
+.c-card .ic{font-size:22px;display:block;margin-bottom:10px}
+.c-card b{display:block;font-size:14.5px;margin-bottom:4px}
+.c-card span{color:var(--dim);font-size:12.5px}
+footer{padding:44px 24px 60px;text-align:center;color:var(--dim);font-size:12.5px}
+footer .fb{font-family:var(--disp);font-weight:700;color:var(--txt);letter-spacing:.06em;margin-bottom:10px}
+footer .fb i{font-style:normal;color:var(--amber)}
+</style>
+</head>
+<body>
+
+<div id="film">
+  <video id="vidA" muted playsinline preload="auto" src="oneshot_final.mp4"></video>
+</div>
+<div id="shade"></div>
+
+<div id="loader"><div class="ld-in">
+  <b>HYPE<i>AUTO</i>.BY</b>
+  <small>Заряжаем кинопроектор</small>
+  <div class="ld-bar"><i id="ldBar"></i></div>
+</div></div>
+
+<div class="bar t"></div>
+<div class="bar b"></div>
+<div id="grain"></div>
+<div id="tc">TAKE 01 / 06 · 00:00</div>
+
+<div id="hero"><div class="hero-in">
+  <span class="tag">Китай · США → Минск</span>
+  <h1>HYPE<i>AUTO</i></h1>
+  <p>Авто из Китая и США «под ключ»: подбор, проверка, доставка, таможня. Листайте — весь путь вашей машины за один скролл.</p>
+</div></div>
+
+<div id="hint"><b>↓</b>Скролл запускает фильм</div>
+<button id="tourBtn">▶ Автопрокрутка</button>
+
+<div class="cap" id="cap1"><div class="cap-in">
+  <div class="tcd">Кадр 01 — Подбор</div>
+  <h2>Находим и <i>проверяем</i> авто</h2>
+  <p>Проводим бесплатную консультацию, изучаем ваш бюджет и подбираем варианты на аукционах Copart, IAAI и Manheim — с полной историей каждого авто.</p>
+</div></div>
+
+<div class="cap" id="cap2"><div class="cap-in">
+  <div class="tcd">Кадр 02 — Погрузка</div>
+  <h2>Оформляем <i>договор</i></h2>
+  <p>Официальный договор, оплата через банк, персональный менеджер на связи 24/7. Каждый автомобиль проходит экспертную проверку: ДТП, сервис, техсостояние.</p>
+</div></div>
+
+<div class="cap" id="cap3"><div class="cap-in">
+  <div class="tcd">Кадр 03 — Трасса</div>
+  <h2>Выигрываем <i>аукцион</i></h2>
+  <p>Помогаем выиграть желаемый лот или ищем новый. После выигрыша вы оплачиваете авто через банк — и оно едет в порт отправки. Первый фотоотчёт уже у вас.</p>
+</div></div>
+
+<div class="cap" id="cap4"><div class="cap-in">
+  <div class="tcd">Кадр 04 — Порт</div>
+  <h2>Загружаем <i>контейнер на паром</i></h2>
+  <p>Работаем с Maersk, MSC и другими судоходными компаниями. Авто страхуется на весь путь, контейнер пломбируется — по фото и видео.</p>
+</div></div>
+
+<div class="cap" id="cap5"><div class="cap-in">
+  <div class="tcd">Кадр 05 — Море</div>
+  <h2>Паром <i>в пути</i></h2>
+  <p>Вы отслеживаете авто по трекеру судоходной компании. Пока судно идёт — мы готовим документы для таможни и выдачи.</p>
+</div></div>
+
+<div class="cap" id="cap6"><div class="cap-in">
+  <div class="tcd">Кадр 06 — Минск</div>
+  <h2>Машина — <i>ваша</i></h2>
+  <p>Полное сопровождение таможенной очистки, документы, ключи. Мечта стала реальностью — без скрытых платежей.</p>
+</div></div>
+
+<div id="movie"></div>
+
+<section class="blk" id="dest"><div class="wrap">
+  <div class="sec-head"><span class="tag">Направления</span>
+    <h2>Направления и популярные модели</h2>
+    <p>Марки и модели, которые выгодны для ввоза в 2026 году. Полный цикл: от выбора авто до выдачи ключей в Беларуси.</p></div>
+  <div class="grid4">
+    <div class="card"><span class="flag">🇺🇸</span><h3>США</h3><p>Аукционы Copart, IAAI и Manheim. Полная история (Carfax/AutoCheck), проверка технического и юридического состояния, официальная оплата через банк.</p><div class="price">от 3 месяцев<small>срок доставки под ключ</small></div></div>
+    <div class="card"><span class="flag">🇨🇳</span><h3>Китай</h3><p>Новые и свежие авто напрямую из Китая: подбор под бюджет, проверка перед покупкой, доставка до Минска и таможенное оформление.</p><div class="price">без скрытых<small>платежей и доплат</small></div></div>
+  </div>
+  <h3 style="font-family:var(--disp);font-weight:500;font-size:18px;margin:34px 0 16px">Популярные модели — уже с ценой «под ключ»</h3>
+  <div class="grid4">
+    <div class="card"><h3>2021 Chevrolet Malibu</h3><p>цена из США</p><div class="price">от 29 755 BYN<small>≈ 10 000 $</small></div></div>
+    <div class="card"><h3>2022 GMC Terrain</h3><p>цена из США</p><div class="price">от 44 632 BYN<small>≈ 15 000 $</small></div></div>
+    <div class="card"><h3>2022 Ford Bronco Sport</h3><p>цена из США</p><div class="price">от 44 632 BYN<small>≈ 15 000 $</small></div></div>
+    <div class="card"><h3>2022 Buick Envision</h3><p>цена из США</p><div class="price">от 59 510 BYN<small>≈ 20 000 $</small></div></div>
+    <div class="card"><h3>2022 Honda CR-V</h3><p>цена из США</p><div class="price">от 59 510 BYN<small>≈ 20 000 $</small></div></div>
+    <div class="card"><h3>2021 Lincoln Corsair</h3><p>цена из США</p><div class="price">от 59 510 BYN<small>≈ 20 000 $</small></div></div>
+    <div class="card"><h3>2021 BMW 5 series</h3><p>цена из США</p><div class="price">от 71 412 BYN<small>≈ 24 000 $</small></div></div>
+    <div class="card"><h3>2021 Audi A6</h3><p>цена из США</p><div class="price">от 74 387 BYN<small>≈ 25 000 $</small></div></div>
+    <div class="card"><h3>2021 BMW X5</h3><p>цена из США</p><div class="price">от 104 142 BYN<small>≈ 35 000 $</small></div></div>
+  </div>
+</div></section>
+
+<section class="blk" id="calc"><div class="wrap">
+  <div class="sec-head"><span class="tag">Калькулятор</span>
+    <h2>Сколько стоит ваша машина в Минске</h2>
+    <p>Ориентировочный расчёт «под ключ»: закупка, доставка, растаможка, утильсбор и наши услуги. Точную смету зафиксируем после подбора конкретного авто.</p></div>
+  <div class="calc-grid">
+    <div class="calc-form">
+      <label for="c-country">Страна закупки</label>
+      <select id="c-country">
+        <option value="us">🇺🇸 США</option>
+        <option value="cn">🇨🇳 Китай</option>
+      </select>
+      <label for="c-price">Стоимость авто на месте, $</label>
+      <input type="number" id="c-price" value="12000" min="500" step="500">
+      <label for="c-engine">Объём двигателя</label>
+      <select id="c-engine">
+        <option value="1.6">до 1.6 л (электро = 0)</option>
+        <option value="2.0" selected>2.0 л</option>
+        <option value="2.5">2.5 л</option>
+        <option value="3.0">3.0 л</option>
+        <option value="3.5">3.5 л и больше</option>
+      </select>
+      <label for="c-age">Возраст авто</label>
+      <select id="c-age">
+        <option value="young">менее 3 лет</option>
+        <option value="mid" selected>3–5 лет</option>
+        <option value="old">более 5 лет</option>
+      </select>
+    </div>
+    <div class="calc-res">
+      <div class="r-label">Ориентировочно, под ключ</div>
+      <div class="r-total" id="r-total">$ —</div>
+      <div class="r-note">включая закупку, доставку и все платежи в РБ</div>
+      <div class="r-rows" id="r-rows"></div>
+      <button class="calc-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Получить точную смету</button>
+    </div>
+  </div>
+</div></section>
+
+<section class="blk" id="steps"><div class="wrap">
+  <div class="sec-head"><span class="tag">Процесс</span>
+    <h2>Как мы работаем</h2>
+    <p>Прозрачный процесс: официальный договор, оплата через банк, персональный менеджер 24/7.</p></div>
+  <div class="steps">
+    <div class="step"><div class="num">01</div><h3>Бесплатная консультация</h3><p>Менеджер узнаёт ваши предпочтения и бюджет, подбирает варианты на аукционах и в дилерских центрах.</p></div>
+    <div class="step"><div class="num">02</div><h3>Договор и оплата услуги</h3><p>После согласования оформляем официальный договор на предоставление услуг. Оплата через банк.</p></div>
+    <div class="step"><div class="num">03</div><h3>Экспертная проверка авто</h3><p>Полная история, данные о ДТП и обслуживании, оценка технического состояния — до ставки на аукционе.</p></div>
+    <div class="step"><div class="num">04</div><h3>Аукцион и выкуп авто</h3><p>Помогаем выиграть лот или ищем новый. После выигрыша вы оплачиваете авто через банк.</p></div>
+    <div class="step"><div class="num">05</div><h3>Доставка до Беларуси</h3><p>Авто доставляют в порт оформления (первый фотоотчёт), затем морем до порта доставки — с трекингом судна и страховкой.</p></div>
+    <div class="step"><div class="num">06</div><h3>Таможня и ключи</h3><p>Полное сопровождение таможенной очистки. Вы получаете ключи от вашего авто — мечта стала реальностью.</p></div>
+  </div>
+</div></section>
+
+<section class="blk" id="faq"><div class="wrap">
+  <div class="sec-head"><span class="tag">FAQ</span><h2>Частые вопросы</h2></div>
+  <div class="faq">
+    <details><summary>Как происходит процесс подбора автомобиля?</summary><p>После обращения мы проводим детальный анализ ваших предпочтений и бюджета, затем подбираем подходящие варианты на американских аукционах и в дилерских центрах (IAAI, Copart, Manheim), предоставляя информацию по каждому автомобилю.</p></details>
+    <details><summary>Как я могу быть уверен в качестве автомобиля?</summary><p>Каждый автомобиль тщательно проверяется перед покупкой: анализ истории (Carfax или AutoCheck), осмотр состояния и технических характеристик. По запросу организуем независимую экспертизу.</p></details>
+    <details><summary>Как производится оплата за авто, выигранное на аукционе?</summary><p>Оплата производится через банк напрямую в страну приобретения.</p></details>
+    <details><summary>Сколько времени занимает доставка из США?</summary><p>Обычно процесс занимает от 3 месяцев, включая оформление документов и транспортировку. Точный срок фиксируем в договоре.</p></details>
+    <details><summary>Можно ли застраховать автомобиль в пути?</summary><p>Да — как от дополнительных повреждений при перевозке, так и от полной утраты груза.</p></details>
+  </div>
+</div></section>
+
+<section class="blk" id="contact"><div class="wrap big-cta">
+  <span class="tag" style="font-family:var(--mono);font-size:11px;letter-spacing:.5em;color:var(--ice);text-transform:uppercase">Финальные титры</span>
+  <h2 style="margin-top:16px">Начнём с <i>бесплатной</i> консультации</h2>
+  <p class="sub">Оставьте заявку — наш менеджер свяжется с вами в течение дня. Ежедневно публикуем актуальные и выгодные модели в Telegram.</p>
+  <div class="c-cards">
+    <a class="c-card" href="tel:+375447088980"><span class="ic">📞</span><b>+375 (44) 708-89-80</b><span>звонок / Viber</span></a>
+    <a class="c-card" href="https://t.me/hypeauto_by"><span class="ic">✈️</span><b>@hypeauto_by</b><span>Telegram — быстрее всего</span></a>
+    <a class="c-card" href="mailto:info.hypeauto@gmail.com"><span class="ic">✉️</span><b>info.hypeauto@gmail.com</b><span>почта</span></a>
+    <a class="c-card" href="https://hypeauto.by" ><span class="ic">📍</span><b>г. Минск, ул. Мележа 1</b><span>6 этаж, пом. 609</span></a>
+  </div>
+</div></section>
+
+<footer>
+  <div class="fb">HYPE<i>AUTO</i>.BY</div>
+  © ООО «ХайпКарсБай» · УНП 193804644 · г. Минск, ул. Мележа, д.1, пом. 609
+</footer>
+
+<script>
+/* ================= ПЛЁНКА (один длинный кадр, транспорт playbackRate) ================= */
+const vid = document.getElementById('vidA');
+const FILM_END = .90;                    /* доля скролла, где кончается фильм */
+
+const movieEl = document.getElementById('movie');
+const heroEl = document.getElementById('hero'), hintEl = document.getElementById('hint');
+const tourBtn = document.getElementById('tourBtn');
+const tcEl = document.getElementById('tc');
+const ldBar = document.getElementById('ldBar');
+const caps = [
+  ['cap1', .02, .155], ['cap2', .155, .30], ['cap3', .30, .445],
+  ['cap4', .445, .59], ['cap5', .59, .735], ['cap6', .735, .88],
+];
+document.getElementById('loader').classList.add('off');
+vid.addEventListener('loadeddata', ()=>document.getElementById('loader').classList.add('off'), {once:true});
+setTimeout(()=>document.getElementById('loader').classList.add('off'), 8000);
+
+let smoothP = 0;
+function progressFromScroll(){
+  const total = Math.max(1, movieEl.offsetHeight - innerHeight);
+  return Math.min(1, Math.max(0, scrollY / total));
+}
+const pad2 = n=>String(Math.floor(n)).padStart(2,'0');
+let lastScrollY = scrollY, scrollDelta = 0;
+addEventListener('scroll', ()=>{ scrollDelta = Math.abs(scrollY - lastScrollY); lastScrollY = scrollY; }, {passive:true});
+
+/* автоплей muted — легален, иначе всё равно скрабим */
+vid.play().catch(()=>{});
+let curRate = 0;
+
+function render(p, dt){
+  /* цель по времени фильма */
+  const u = Math.min(1, p / FILM_END);
+  let target = u * ((vid.duration||20) - .1);
+  let now = vid.currentTime;
+
+  if(vid.readyState >= 2 && vid.duration){
+    const diff = target - now;
+    if(diff > .08){
+      /* вперёд — плавный транспорт скоростью, без seek */
+      const want = Math.min(8, Math.max(.08, diff*2.2));
+      curRate += (want - curRate)*.25;
+      if(vid.paused) vid.play().catch(()=>{});
+      vid.playbackRate = Math.max(.07, Math.min(curRate, 8));
+    } else if(diff < -.12){
+      /* назад — один seek (редкий случай) */
+      try{ vid.currentTime = Math.max(0, target); }catch(e){}
+      curRate = 1; vid.playbackRate = 1;
+    } else {
+      /* держим кадр — пауза вместо нулевой скорости */
+      if(!vid.paused) vid.pause();
+      curRate = 0;
+    }
+  }
+
+  /* таймкод */
+  const t = vid.currentTime || 0;
+  tcEl.textContent = `ONE-SHOT · ${pad2(t/60)}:${pad2(t%60)}`;
+
+  /* титры и хромировка */
+  caps.forEach(([id,a,b])=>document.getElementById(id).classList.toggle('on', p>=a && p<=b));
+  heroEl.classList.toggle('off', p > .05);
+  hintEl.classList.toggle('off', p > .045);
+  tcEl.classList.toggle('off', p > FILM_END);
+  document.body.classList.toggle('cine-off', p > FILM_END);
+  tourBtn.classList.toggle('hide', p > FILM_END);
+}
+
+const clock = (()=>{ let t = performance.now(); return ()=>{
+  const n = performance.now(), dt = Math.min(.05,(n-t)/1000); t = n; return dt; };})();
+
+function loop(){
+  requestAnimationFrame(loop);
+  const dt = clock();
+  const targetP = progressFromScroll();
+  smoothP += (targetP - smoothP) * .12;
+  if (Math.abs(targetP - smoothP) < .0003) smoothP = targetP;
+  render(smoothP, dt);
+}
+loop();
+
+/* ================= АВТОПРОКРУТКА ================= */
+let touring=false, tourRAF=0, tourT0=0;
+tourBtn.addEventListener('click', ()=>{
+  if(touring){ stopTour(); return; }
+  touring = true; tourBtn.classList.add('touring'); tourBtn.textContent='⏸ Стоп';
+  if(progressFromScroll() > .97) scrollTo(0,0);
+  tourT0 = performance.now();
+  const total = movieEl.offsetHeight - innerHeight, dur = 75000;
+  (function step(){
+    if(!touring) return;
+    const el = performance.now()-tourT0;
+    if(el >= dur){ stopTour(); return; }
+    const e = el/dur, s = e<.5 ? 2*e*e : 1-Math.pow(-2*e+2,2)/2;
+    scrollTo(0, total*s);
+    tourRAF = requestAnimationFrame(step);
+  })();
+});
+function stopTour(){ touring=false; tourBtn.classList.remove('touring'); tourBtn.textContent='▶ Автопрокрутка'; cancelAnimationFrame(tourRAF); }
+addEventListener('wheel', stopTour, {passive:true});
+addEventListener('touchstart', stopTour, {passive:true});
+
+/* ================= КАЛЬКУЛЯТОР ================= */
+const RATE_EUR = 3.4, RATE_USD = 3.25;
+const COUNTRY = {
+  cn:{delivery:2100, commission:600, fee:250},
+  us:{delivery:3100, commission:700, fee:350},
+  kr:{delivery:1600, commission:550, fee:250},
+  ge:{delivery:950,  commission:500, fee:200},
+};
+function calcDutyEUR(price, engineL, age){
+  const cm3 = engineL*1000;
+  if(age==='young') return Math.max(price*.48, 2.5*cm3);
+  if(age==='mid') return 1.5*cm3;
+  return 3*cm3;
+}
+function utilByn(age){ return age==='young'?834 : age==='mid'?2689 : 5223; }
+const fmt = n=>'$ '+Math.round(n).toLocaleString('ru-RU');
+const fmtByn = n=>Math.round(n).toLocaleString('ru-RU')+' BYN';
+function recalc(){
+  const c = COUNTRY[document.getElementById('c-country').value];
+  const price = Math.max(500, +document.getElementById('c-price').value || 0);
+  const engineL = parseFloat(document.getElementById('c-engine').value);
+  const age = document.getElementById('c-age').value;
+  const dutyEUR = calcDutyEUR(price, engineL, age);
+  const dutyUSD = dutyEUR*RATE_EUR/RATE_USD;
+  const utilUSD = utilByn(age)/RATE_USD;
+  const misc = c.fee + 200 + 150;
+  const total = price + c.delivery + c.commission + dutyUSD + utilUSD + misc;
+  document.getElementById('r-total').textContent = fmt(total);
+  const rows = [
+    ['Закупка авто', fmt(price)],
+    ['Логистика до Минска', fmt(c.delivery)],
+    ['Таможенная пошлина', fmt(dutyUSD)+' (≈'+Math.round(dutyEUR).toLocaleString('ru-RU')+' €)'],
+    ['Утильсбор', fmtByn(utilByn(age))],
+    ['СБКТС / ТО / брокер', fmt(misc)],
+    ['Наши услуги', fmt(c.commission)],
+  ];
+  document.getElementById('r-rows').innerHTML = rows.map(r=>`<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
+}
+['c-country','c-price','c-engine','c-age'].forEach(id=>document.getElementById(id).addEventListener('input', recalc));
+recalc();
+</script>
+</body>
+</html>
